@@ -2,6 +2,7 @@ import pygame
 import logging
 import os
 import random
+import sys
 
 # Establece el directorio de trabajo al directorio del script actual
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -15,16 +16,17 @@ width, height = 1000, 750
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('Mi juego')
 
-# Obtengo la ruta al directorio actual del script
-current_dir = os.path.dirname(os.path.abspath(__file__))    
+# Obtén la ruta al directorio del script actual
+script_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
+
 
 # Construyo la ruta completa al archivo players.png
-start_png = os.path.join(current_dir, 'assets', 'sprites', 'menu', 'press-enter-text.png')
+start_png = os.path.join(script_dir, 'assets', 'sprites', 'menu', 'press-enter-text.png')
 press_start_image = pygame.image.load(start_png)
 press_start_image = pygame.transform.scale(press_start_image, (width, height))
 
-has_ganado_jpg = os.path.join(current_dir, 'assets', 'sprites', 'messages', 'has_ganado.jpg')
-has_perdido_png = os.path.join(current_dir, 'assets', 'sprites', 'messages', 'has_perdido.png')
+has_ganado_jpg = os.path.join(script_dir, 'assets', 'sprites', 'messages', 'has_ganado.jpg')
+has_perdido_png = os.path.join(script_dir, 'assets', 'sprites', 'messages', 'has_perdido.png')
 
 has_ganado_image = pygame.image.load(has_ganado_jpg)
 has_perdido_image = pygame.image.load(has_perdido_png)
@@ -32,7 +34,6 @@ has_perdido_image = pygame.image.load(has_perdido_png)
 
 # Tamaño de los movimientos
 movement_distance = 5
-
 # Variable para rastrear si el jugador está en movimiento o no
 is_moving = False  
 
@@ -54,8 +55,8 @@ class Player:
 
     def draw(self, screen):
         screen.blit(self.image, self.pos)  # Dibujar la imagen del jugador en la posición especificada
-    def recibir_daño(self, cantidad_daño):
-        self.health -= cantidad_daño
+    def recibir_dano(self, cantidad_dano):
+        self.health -= cantidad_dano
 
     def esta_vivo(self):
         return self.health > 0 
@@ -70,8 +71,8 @@ class Enemigo:
 
     def draw(self, screen):
         screen.blit(self.image, self.pos)  # Dibujar la imagen del jugador en la posición especificada
-    def recibir_daño(self, cantidad_daño):
-        self.health -= cantidad_daño
+    def recibir_dano(self, cantidad_dano):
+        self.health -= cantidad_dano
 
     def esta_vivo(self):
         return self.health > 0  
@@ -85,25 +86,24 @@ direction = ''
 
 
 # Construyo la ruta completa al archivo players.png
-player_png = os.path.join(current_dir, 'assets', 'sprites', 'players', 'players.png')
+player_png = os.path.join(script_dir, 'assets', 'sprites', 'players', 'players.png')
 
 
 # Construyo la ruta completa al archivo enemies.png
-enemies_png = os.path.join(current_dir, 'assets', 'sprites', 'enemies', 'enemies.png')
+enemies_png = os.path.join(script_dir, 'assets', 'sprites', 'enemies', 'enemies.png')
 
 # Carga de imagenes
 player_pygame = pygame.image.load(player_png)
 
 # Carga de imagenes
 enemies_pygame = pygame.image.load(enemies_png)
-
 player = Player(100, 500, 100, player_pygame)
 
 enemy = Enemigo(700, 500, 100, enemies_pygame)
 
 
 # Construyo la ruta completa al archivo de musica
-music_mp3 = os.path.join(current_dir, 'assets', 'sounds', 'heroic.mp3')
+music_mp3 = os.path.join(script_dir, 'assets', 'sounds', 'heroic.mp3')
 #carga de musica
 pygame.mixer.music.load(music_mp3)
 pygame.mixer.music.play(-1)
@@ -134,7 +134,7 @@ def colision_bola_energia_jugador(player_rect, bola_energia_rect):
     return player_rect.colliderect(bola_energia_rect)
 
 # Carga de background y escala al tamaño de la pantalla
-background = os.path.join(current_dir, 'assets', 'sprites', 'background', 'middleground.png')
+background = os.path.join(script_dir, 'assets', 'sprites', 'background', 'middleground.png')
 background_image = pygame.image.load(background)
 background_image = pygame.transform.scale(background_image, (width, height))
 
@@ -224,7 +224,7 @@ while running:
 
         # Verificar colisión del Kamehameha con el enemigo
         if kamehameha_active and colision_kamehameha_enemigo(enemy.rect, kamehameha_rect):
-            enemy.recibir_daño(1)
+            enemy.recibir_dano(1)
             kamehameha_active = False  # Desactivar el Kamehameha después de la colisión
 
         if kamehameha_active:
@@ -245,13 +245,13 @@ while running:
         # Verificar colisión de la bola de energía del enemigo con el jugador
         for b in lista_de_bolas_de_energia:
             if b.rect.colliderect(player.rect):
-                player.recibir_daño(10)
+                player.recibir_dano(10)
                 lista_de_bolas_de_energia.remove(b)  # Elimina la bola de energía después de la colisión
                 bola_energia = b  # Asigna la bola de energía actual a la variable bola_energia
 
         if bola_energia is not None:
             if colision_bola_energia_jugador(player.rect, bola_energia.rect):
-                player.recibir_daño(10)  # Reducir la salud del jugador en 10 puntos
+                player.recibir_dano(10)  # Reducir la salud del jugador en 10 puntos
     
         # Verificar si el enemigo ha perdido toda su vida
         if not enemy.esta_vivo():
