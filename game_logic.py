@@ -1,8 +1,10 @@
 import pygame
 import logging
 import os
-import math
 import random
+
+# Establece el directorio de trabajo al directorio del script actual
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 logging.basicConfig(level=logging.DEBUG)
 
